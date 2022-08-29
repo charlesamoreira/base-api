@@ -1,8 +1,4 @@
-import {
-	Inject,
-	Injectable,
-	UnprocessableEntityException,
-} from "@nestjs/common";
+import { Inject, Injectable, UnprocessableEntityException } from "@nestjs/common";
 import { hash } from "bcrypt";
 import { User } from "./entity/user";
 import { UsersRepository } from "./repository/users.repository";

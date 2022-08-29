@@ -8,9 +8,6 @@ import { UsersService } from "./users.service";
 	controllers: [UsersController],
 	exports: [UsersService],
 	imports: [FirebaseModule],
-	providers: [
-		UsersService,
-		{ provide: "UsersRepository", useClass: UsersFirebaseRepository },
-	],
+	providers: [UsersService, { provide: "UsersRepository", useClass: UsersFirebaseRepository }],
 })
 export class UsersModule {}

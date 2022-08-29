@@ -1,8 +1,4 @@
-import {
-	Inject,
-	Injectable,
-	UnprocessableEntityException,
-} from "@nestjs/common";
+import { Inject, Injectable, UnprocessableEntityException } from "@nestjs/common";
 import { JwtService } from "@nestjs/jwt";
 import { RefreshToken } from "../entity/refreshToken";
 import { RefreshTokenRepository } from "../repository/refreshToken.repository";
@@ -32,10 +28,7 @@ export class TokenService {
 		});
 	}
 
-	public async generateRefreshToken(
-		user: User,
-		expiresIn: number,
-	): Promise<string> {
+	public async generateRefreshToken(user: User, expiresIn: number): Promise<string> {
 		const refreshToken = new RefreshToken("");
 
 		refreshToken.userId = user.id;
@@ -46,9 +39,7 @@ export class TokenService {
 
 		refreshToken.expires = expiration;
 
-		const token = await this.refreshTokenRepository.createRefreshToken(
-			refreshToken,
-		);
+		const token = await this.refreshTokenRepository.createRefreshToken(refreshToken);
 
 		const payload = { ...user };
 		return this.jwtService.sign(payload, {
@@ -59,9 +50,7 @@ export class TokenService {
 		});
 	}
 
-	public async resolveRefreshToken(
-		encoded: string,
-	): Promise<{ user: User; token: RefreshToken }> {
+	public async resolveRefreshToken(encoded: string): Promise<{ user: User; token: RefreshToken }> {
 		const payload = await this.decodeRefreshToken(encoded);
 		const token = await this.getStoredTokenFromRefreshTokenPayload(payload);
 
@@ -82,9 +71,7 @@ export class TokenService {
 		return { user, token };
 	}
 
-	public async createAccessTokenFromRefreshToken(
-		refresh: string,
-	): Promise<{ token: string; user: User }> {
+	public async createAccessTokenFromRefreshToken(refresh: string): Promise<{ token: string; user: User }> {
 		const { user } = await this.resolveRefreshToken(refresh);
 
 		const token = await this.generateAccessToken(user);
@@ -92,9 +79,7 @@ export class TokenService {
 		return { user, token };
 	}
 
-	private async decodeRefreshToken(
-		token: string,
-	): Promise<RefreshTokenPayload> {
+	private async decodeRefreshToken(token: string): Promise<RefreshTokenPayload> {
 		try {
 			return this.jwtService.verify(token);
 		} catch (e) {
@@ -106,9 +91,7 @@ export class TokenService {
 		}
 	}
 
-	private async getUserFromRefreshTokenPayload(
-		payload: RefreshTokenPayload,
-	): Promise<User> {
+	private async getUserFromRefreshTokenPayload(payload: RefreshTokenPayload): Promise<User> {
 		const subId = payload.sub;
 
 		if (!subId) {
@@ -118,9 +101,7 @@ export class TokenService {
 		return this.usersService.findById(subId);
 	}
 
-	private async getStoredTokenFromRefreshTokenPayload(
-		payload: RefreshTokenPayload,
-	): Promise<RefreshToken | null> {
+	private async getStoredTokenFromRefreshTokenPayload(payload: RefreshTokenPayload): Promise<RefreshToken | null> {
 		const tokenId = payload.jti;
 
 		if (!tokenId) {

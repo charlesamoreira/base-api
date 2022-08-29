@@ -27,23 +27,16 @@ export class RefreshTokenFirebaseRepository implements RefreshTokenRepository {
 	};
 
 	async createRefreshToken(refreshToken: RefreshToken): Promise<RefreshToken> {
-		const collection = this.firestoreService
-			.collection("refreshTokens")
-			.withConverter<RefreshToken>(this.converter);
+		const collection = this.firestoreService.collection("refreshTokens").withConverter<RefreshToken>(this.converter);
 
-		const doc = await this.firestoreService.addDoc<RefreshToken>(
-			collection,
-			refreshToken,
-		);
+		const doc = await this.firestoreService.addDoc<RefreshToken>(collection, refreshToken);
 
 		const snapshot = await this.firestoreService.getDoc(doc);
 		return snapshot.data();
 	}
 
 	async findTokenById(id: string): Promise<RefreshToken> {
-		const doc = this.firestoreService
-			.doc("refreshTokens", id)
-			.withConverter<RefreshToken>(this.converter);
+		const doc = this.firestoreService.doc("refreshTokens", id).withConverter<RefreshToken>(this.converter);
 
 		const snapshot = await this.firestoreService.getDoc(doc);
 		return snapshot.data();

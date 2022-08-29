@@ -26,9 +26,7 @@ export class UsersFirebaseRepository implements UsersRepository {
 	};
 
 	async create(user: User): Promise<User> {
-		const collection = this.firestoreService
-			.collection("users")
-			.withConverter<User>(this.converter);
+		const collection = this.firestoreService.collection("users").withConverter<User>(this.converter);
 
 		const doc = await this.firestoreService.addDoc<User>(collection, user);
 
@@ -37,32 +35,23 @@ export class UsersFirebaseRepository implements UsersRepository {
 	}
 
 	async findById(id: string): Promise<User> {
-		const doc = this.firestoreService
-			.doc("users", id)
-			.withConverter<User>(this.converter);
+		const doc = this.firestoreService.doc("users", id).withConverter<User>(this.converter);
 
 		const snapshot = await this.firestoreService.getDoc(doc);
 		return snapshot.data();
 	}
 
 	async findByUsername(username: string): Promise<User[]> {
-		const collection = this.firestoreService
-			.collection("users")
-			.withConverter<User>(this.converter);
+		const collection = this.firestoreService.collection("users").withConverter<User>(this.converter);
 
-		const q = this.firestoreService.query(
-			collection,
-			this.firestoreService.where("username", "==", username),
-		);
+		const q = this.firestoreService.query(collection, this.firestoreService.where("username", "==", username));
 
 		const querySnapshot = await this.firestoreService.getDocs(q);
 		return querySnapshot.docs.map((doc) => doc.data());
 	}
 
 	async update(user: User): Promise<void> {
-		const doc = this.firestoreService
-			.doc("users", user.id)
-			.withConverter<User>(this.converter);
+		const doc = this.firestoreService.doc("users", user.id).withConverter<User>(this.converter);
 
 		await this.firestoreService.updateDoc<User>(doc, user);
 	}
