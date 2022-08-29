@@ -5,7 +5,7 @@ import { AuthGuard } from "@nestjs/passport";
 export class JwtAuthGuard extends AuthGuard("jwt") {
 	handleRequest(err, user, info: Error) {
 		if (err || info || !user) {
-			throw err || info || new UnauthorizedException();
+			throw new UnauthorizedException(err || info.message);
 		}
 
 		return user;
