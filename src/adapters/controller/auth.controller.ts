@@ -1,5 +1,5 @@
 import { Controller, Request, Post, Body } from "@nestjs/common";
-import { ApiBadRequestResponse, ApiForbiddenResponse, ApiInternalServerErrorResponse, ApiOkResponse, ApiTags, ApiUnauthorizedResponse } from "@nestjs/swagger";
+import { ApiBadRequestResponse, ApiForbiddenResponse, ApiInternalServerErrorResponse, ApiOkResponse, ApiOperation, ApiTags, ApiUnauthorizedResponse } from "@nestjs/swagger";
 import { plainToClass } from "class-transformer";
 import { AuthService } from "../../domain/auth/service/auth.service";
 import { User } from "../../domain/users/entity/user";
@@ -11,6 +11,7 @@ import { ErrorDto } from "../dto/error.dto";
 export class AuthController {
 	constructor(private authService: AuthService) {}
 
+	@ApiOperation({summary: "Authenticate a user"})
 	@Post("login")
 	@ApiOkResponse({
 		description: "The authentication has been succesfully",
@@ -26,6 +27,7 @@ export class AuthController {
 		return this.buildResponse(payload);
 	}
 
+	@ApiOperation({summary: "Create and authenticate a user"})
 	@ApiOkResponse({
 		description: "The user has been succesfully created",
 		type: AuthResponseDto,
@@ -41,6 +43,7 @@ export class AuthController {
 		return this.buildResponse(payload);
 	}
 
+	@ApiOperation({summary: "Refresh a token"})
 	@ApiOkResponse({
 		description: "The authentication has been succesfully",
 		type: AuthResponseDto,
