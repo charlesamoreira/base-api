@@ -1,58 +1,41 @@
 import { Injectable } from "@nestjs/common";
-import { FirestoreService } from "@nhogs/nestjs-firebase";
-import { User } from "../../domain/users/entity/user";
-import { UsersRepository } from "../../domain/users/repository/users.repository";
+import { User } from "../../domain/user/entity/user";
+import { IUserRepository } from "../../domain/user/repository/i-user.repository";
+import { InjectRepository } from "@nestjs/typeorm";
+import { Repository } from "typeorm";
+import { UserEntityMapper } from "./mappers/user/user-entity.mapper";
+import { UserFilter } from "../../domain/user/entity/user-filter";
+import { UserEntity } from "./entities/user/user.entity";
 
 @Injectable()
-export class UsersFirebaseRepository implements UsersRepository {
-	constructor(private readonly firestoreService: FirestoreService) {}
+export class UserRepository implements IUserRepository {
+	constructor(
+		@InjectRepository(UserEntity)
+		private usersRepository: Repository<UserEntity>,
+	) {}
 
-	converter = {
-		toFirestore: (user: User) => {
-			return {
-				name: user.name,
-				username: user.username,
-				password: user.password,
-			};
-		},
-		fromFirestore: (snapshot, options) => {
-			const data = snapshot.data(options);
-			const user = new User(snapshot.id);
-			user.name = data.name;
-			user.username = data.username;
-			user.password = data.password;
-			return user;
-		},
-	};
-
-	async create(user: User): Promise<User> {
-		const collection = this.firestoreService.collection("users").withConverter<User>(this.converter);
-
-		const doc = await this.firestoreService.addDoc<User>(collection, user);
-
-		const snapshot = await this.firestoreService.getDoc(doc);
-		return snapshot.data();
+	async create(data: User): Promise<User> {
+		const result = await this.usersRepository.insert(UserEntityMapper.letfToRight(data));
+		data.id = result.identifiers[0].id;
+		return data;
 	}
 
-	async findById(id: string): Promise<User> {
-		const doc = this.firestoreService.doc("users", id).withConverter<User>(this.converter);
-
-		const snapshot = await this.firestoreService.getDoc(doc);
-		return snapshot.data();
+	async deleteUser(filter: UserFilter): Promise<void> {
+		await this.usersRepository.delete({ ...(filter.id && { id: filter.id }) });
 	}
 
-	async findByUsername(username: string): Promise<User[]> {
-		const collection = this.firestoreService.collection("users").withConverter<User>(this.converter);
-
-		const q = this.firestoreService.query(collection, this.firestoreService.where("username", "==", username));
-
-		const querySnapshot = await this.firestoreService.getDocs(q);
-		return querySnapshot.docs.map((doc) => doc.data());
+	async getUsers(filter: UserFilter): Promise<User[]> {
+		const users = await this.usersRepository.find({
+			where: {
+				...(filter.id && { id: filter.id }),
+				...(filter.username && { username: filter.username }),
+			},
+		});
+		return users.map((u) => UserEntityMapper.rightToLeft(u));
 	}
 
 	async update(user: User): Promise<void> {
-		const doc = this.firestoreService.doc("users", user.id).withConverter<User>(this.converter);
-
-		await this.firestoreService.updateDoc<User>(doc, user);
+		await this.usersRepository.update({ id: user.id }, UserEntityMapper.letfToRight(user));
 	}
+
 }

@@ -1,7 +1,5 @@
 export class RefreshToken {
-	constructor(public id: string) {}
-
-	public userId: string;
+	public id: string;
 	public isRevoked: boolean;
 	public expires: Date;
 }

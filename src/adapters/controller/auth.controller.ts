@@ -2,7 +2,7 @@ import { Controller, Request, Post, Body } from "@nestjs/common";
 import { ApiBadRequestResponse, ApiForbiddenResponse, ApiInternalServerErrorResponse, ApiOkResponse, ApiOperation, ApiTags, ApiUnauthorizedResponse } from "@nestjs/swagger";
 import { plainToClass } from "class-transformer";
 import { AuthService } from "../../domain/auth/service/auth.service";
-import { User } from "../../domain/users/entity/user";
+import { User } from "../../domain/user/entity/user";
 import { AuthRequestDto, AuthResponseDto } from "../dto/auth.dto";
 import { ErrorDto } from "../dto/error.dto";
 

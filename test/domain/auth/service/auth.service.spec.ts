@@ -4,7 +4,7 @@ import { Test, TestingModule } from "@nestjs/testing";
 import { expect } from "chai";
 import { AuthService } from "../../../../src/domain/auth/service/auth.service";
 import { TokenService } from "../../../../src/domain/auth/service/token.service";
-import { UsersService } from "../../../../src/domain/users/users.service";
+import { UserService } from "../../../../src/domain/user/service/user.service";
 import { UserMock } from "../../../mock/user";
 
 const TokenMock = { ìd: 123 };
@@ -25,7 +25,7 @@ describe("AuthService", () => {
 			providers: [
 				AuthService,
 				JwtService,
-				UsersService,
+				UserService,
 				TokenService,
 				{
 					provide: "UsersRepository",

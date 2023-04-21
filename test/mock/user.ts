@@ -1,4 +1,4 @@
-import { User } from "../../src/domain/users/entity/user";
+import { User } from "../../src/domain/user/entity/user";
 
 const user = new User("123");
 user.name = "Test user";

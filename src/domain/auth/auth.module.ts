@@ -4,10 +4,14 @@ import { JwtModule } from "@nestjs/jwt";
 import { PassportModule } from "@nestjs/passport";
 import { JwtStrategy } from "./jwt.strategy";
 import { AuthService } from "./service/auth.service";
-import { UsersModule } from "../users/users.module";
+import { UserModule } from "../user/user.module";
 import { AuthController } from "../../adapters/controller/auth.controller";
-import { RefreshTokenFirebaseRepository } from "../../adapters/repository/refreshToken.repository";
+import { RefreshTokenRepository } from "../../adapters/repository/refresh-token.repository";
 import { TokenService } from "./service/token.service";
+import { TypeOrmModule } from "@nestjs/typeorm";
+import { RefreshTokenEntity } from "../../adapters/repository/entities/auth/refresh-token.entity";
+import { ResetTokenEntity } from "../../adapters/repository/entities/auth/reset-token.entity";
+import { ResetTokenRepository } from "../../adapters/repository/reset-token.repository";
 
 @Module({
 	imports: [
@@ -21,7 +25,8 @@ import { TokenService } from "./service/token.service";
 			inject: [ConfigService],
 		}),
 		PassportModule,
-		UsersModule,
+		UserModule,
+		TypeOrmModule.forFeature([RefreshTokenEntity, ResetTokenEntity]),
 	],
 	providers: [
 		AuthService,
@@ -29,7 +34,11 @@ import { TokenService } from "./service/token.service";
 		JwtStrategy,
 		{
 			provide: "RefreshTokenRepository",
-			useClass: RefreshTokenFirebaseRepository,
+			useClass: RefreshTokenRepository,
+		},
+		{
+			provide: "ResetTokenRepository",
+			useClass: ResetTokenRepository,
 		},
 	],
 	exports: [AuthService],

@@ -1,10 +1,10 @@
 import { Inject, Injectable, UnprocessableEntityException } from "@nestjs/common";
 import { JwtService } from "@nestjs/jwt";
 import { RefreshToken } from "../entity/refreshToken";
-import { RefreshTokenRepository } from "../repository/refreshToken.repository";
-import { User } from "../../users/entity/user";
+import { IRefreshTokenRepository } from "../repository/i-refresh-token.repository";
+import { User } from "../../user/entity/user";
 import { TokenExpiredError } from "jsonwebtoken";
-import { UsersService } from "../../users/users.service";
+import { UserService } from "../../user/service/user.service";
 
 export interface RefreshTokenPayload {
 	jti: string;
@@ -15,9 +15,9 @@ export interface RefreshTokenPayload {
 export class TokenService {
 	constructor(
 		@Inject("RefreshTokenRepository")
-		private readonly refreshTokenRepository: RefreshTokenRepository,
+		private readonly refreshTokenRepository: IRefreshTokenRepository,
 		private jwtService: JwtService,
-		private usersService: UsersService,
+		private usersService: UserService,
 	) {}
 
 	public async generateAccessToken(user: User): Promise<string> {
@@ -29,9 +29,9 @@ export class TokenService {
 	}
 
 	public async generateRefreshToken(user: User, expiresIn: number): Promise<string> {
-		const refreshToken = new RefreshToken("");
+		const refreshToken = new RefreshToken();
 
-		refreshToken.userId = user.id;
+		refreshToken.id = user.id;
 		refreshToken.isRevoked = false;
 
 		const expiration = new Date();
@@ -46,7 +46,7 @@ export class TokenService {
 			secret: process.env.JWT_SECREAT,
 			expiresIn,
 			subject: user.id,
-			jwtid: String(token.id),
+			jwtid: token.id,
 		});
 	}
 
@@ -98,7 +98,13 @@ export class TokenService {
 			throw new UnprocessableEntityException("Refresh token malformed");
 		}
 
-		return this.usersService.findById(subId);
+		const users = await this.usersService.getUsers({ id: subId });
+
+		if (users.length !== 1) {
+			throw new UnprocessableEntityException("Refresh token malformed");
+		}
+
+		return users[0];
 	}
 
 	private async getStoredTokenFromRefreshTokenPayload(payload: RefreshTokenPayload): Promise<RefreshToken | null> {

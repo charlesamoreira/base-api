@@ -1,16 +1,16 @@
 import { Test, TestingModule } from "@nestjs/testing";
 import { expect } from "chai";
-import { UsersService } from "../../../../src/domain/users/users.service";
+import { UserService } from "../../../../src/domain/user/service/user.service";
 import { UserMock } from "../../../mock/user";
 
 describe("UsersService", () => {
-	let service: UsersService;
+	let service: UserService;
 	let module: TestingModule;
 
 	beforeEach(async () => {
 		module = await Test.createTestingModule({
 			providers: [
-				UsersService,
+				UserService,
 				{
 					provide: "UsersRepository",
 					useValue: {
@@ -20,7 +20,7 @@ describe("UsersService", () => {
 			],
 		}).compile();
 
-		service = module.get<UsersService>(UsersService);
+		service = module.get<UserService>(UserService);
 	});
 
 	after(async () => {
