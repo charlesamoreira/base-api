@@ -98,13 +98,13 @@ export class TokenService {
 			throw new UnprocessableEntityException("Refresh token malformed");
 		}
 
-		const users = await this.usersService.getUsers({ id: subId });
+		const user = await this.usersService.getUserById(subId);
 
-		if (users.length !== 1) {
+		if (!user) {
 			throw new UnprocessableEntityException("Refresh token malformed");
 		}
 
-		return users[0];
+		return user;
 	}
 
 	private async getStoredTokenFromRefreshTokenPayload(payload: RefreshTokenPayload): Promise<RefreshToken | null> {

@@ -10,20 +10,17 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
 			jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
 			ignoreExpiration: false,
 			secretOrKey: process.env.JWT_SECREAT,
-			signOptions: {
-				expiresIn: process.env.JWT_EXPIRES,
-			},
 		});
 	}
 
-	async validate(token) {
-		const users = await this.usersService.getUsers({ id: token.id });
+	async validate(token: { id: string }) {
+		const user = await this.usersService.getUserById(token.id);
 
-		if (users.length === 0) {
+		if (!user) {
 			return null;
 		}
 
-		delete users[0].password;
-		return users;
+		delete user.password;
+		return user;
 	}
 }

@@ -1,4 +1,5 @@
 import { Entity, Column, PrimaryGeneratedColumn, CreateDateColumn, UpdateDateColumn } from "typeorm";
+import { Status } from "../../../../common/constants";
 
 @Entity("users")
 export class UserEntity {
@@ -12,7 +13,7 @@ export class UserEntity {
 	public password: string;
 
 	@Column()
-	public status: string;
+	public status: Status;
 
 	@Column()
 	public theme: string;

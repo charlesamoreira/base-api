@@ -1,10 +1,8 @@
 import { Status } from "../../../common/constants";
 
-export class User {
+export class UserDto {
 	public id: string;
 	public name: string;
 	public password: string;
 	public status: Status;
-	public theme: string;
-	public username: string;
 }

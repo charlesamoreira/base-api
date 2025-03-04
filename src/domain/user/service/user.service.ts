@@ -3,6 +3,8 @@ import { hash } from "bcrypt";
 import { User } from "../entity/user";
 import { IUserRepository } from "../repository/i-user.repository";
 import { UserFilter } from "../entity/user-filter";
+import { Page, PageOptions } from "../../../common/dtos";
+import { Status } from "../../../common/constants";
 
 @Injectable()
 export class UserService {
@@ -12,15 +14,15 @@ export class UserService {
 	) {}
 
 	async create(data: User): Promise<User | undefined> {
-		const existingFromUsername = await this.getUsers({ username: data.username });
+		const existingFromUsername = await this.getUsers({ username: data.username }, { take: 1, skip: 0 });
 
-		if (existingFromUsername.length > 0) {
+		if (existingFromUsername.meta.itemCount > 0) {
 			throw new UnprocessableEntityException("Username already in use");
 		}
 
 		const user = await this.usersRepository.create({
 			...data,
-			status: "active",
+			status: Status.Active,
 			theme: "light",
 			password: await hash(data.password, 10),
 		});
@@ -28,8 +30,12 @@ export class UserService {
 		return user;
 	}
 
-	async getUsers(filter: UserFilter): Promise<User[]> {
-		return this.usersRepository.getUsers(filter);
+	async getUserById(id: string): Promise<User> {
+		return this.usersRepository.getUserById(id);
+	}
+
+	async getUsers(filter: UserFilter, pageOptionsDto: PageOptions): Promise<Page<User>> {
+		return this.usersRepository.getUsers(filter, pageOptionsDto);
 	}
 
 	async updateUser(user: User) {

@@ -7,7 +7,7 @@ config();
 const configService = new ConfigService();
 
 export default new DataSource({
-	type: "postgres",
+	type: "mariadb",
 	host: configService.get("DB_HOST"),
 	port: configService.get("DB_PORT"),
 	username: configService.get("DB_USER"),
