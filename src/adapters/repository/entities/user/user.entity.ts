@@ -1,24 +1,23 @@
 import { Entity, Column, PrimaryGeneratedColumn, CreateDateColumn, UpdateDateColumn } from "typeorm";
-import { Status } from "../../../../common/constants";
 
 @Entity("users")
 export class UserEntity {
 	@PrimaryGeneratedColumn("uuid")
 		id: string;
 
-	@Column()
+	@Column({type: "varchar", length: 250})
 	public name: string;
 
-	@Column()
+	@Column({type: "varchar", length: 100})
 	public password: string;
 
-	@Column()
-	public status: Status;
+	@Column({type: "varchar", length: 20})
+	public status: string;
 
-	@Column()
+	@Column({type: "varchar", length: 20})
 	public theme: string;
 
-	@Column()
+	@Column({type: "varchar", length: 100})
 	public username: string;
 
 	@CreateDateColumn({ type: "timestamp", default: () => "CURRENT_TIMESTAMP(6)" })

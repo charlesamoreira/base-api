@@ -3,12 +3,12 @@ import { Entity, Column, PrimaryGeneratedColumn, CreateDateColumn, UpdateDateCol
 @Entity("reset-token")
 export class ResetTokenEntity {
 	@PrimaryGeneratedColumn("uuid")
-	id: string;
+		id: string;
 
-	@Column()
+	@Column({type: "varchar", length: 4000})
 	public token: string;
 
-	@Column()
+	@Column({type: "varchar", length: 36})
 	public userId: string;
 
 	@CreateDateColumn({ type: "timestamp" })

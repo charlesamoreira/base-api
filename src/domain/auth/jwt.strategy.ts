@@ -5,7 +5,7 @@ import { UserService } from "../user/service/user.service";
 
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy) {
-	constructor(private usersService: UserService) {
+	constructor(private readonly usersService: UserService) {
 		super({
 			jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
 			ignoreExpiration: false,
@@ -13,14 +13,14 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
 		});
 	}
 
-	async validate(token: { id: string }) {
-		const user = await this.usersService.getUserById(token.id);
+	async validate(token) {
+		const users = await this.usersService.getUsers({ id: token.id });
 
-		if (!user) {
+		if (users.length === 0) {
 			return null;
 		}
 
-		delete user.password;
-		return user;
+		delete users[0].password;
+		return users;
 	}
 }

@@ -3,26 +3,24 @@ import { hash } from "bcrypt";
 import { User } from "../entity/user";
 import { IUserRepository } from "../repository/i-user.repository";
 import { UserFilter } from "../entity/user-filter";
-import { Page, PageOptions } from "../../../common/dtos";
-import { Status } from "../../../common/constants";
 
 @Injectable()
 export class UserService {
 	constructor(
 		@Inject("UserRepository")
-		private readonly usersRepository: IUserRepository,
+		private readonly userRepository: IUserRepository,
 	) {}
 
 	async create(data: User): Promise<User | undefined> {
-		const existingFromUsername = await this.getUsers({ username: data.username }, { take: 1, skip: 0 });
+		const existingFromUsername = await this.getUsers({ username: data.username });
 
-		if (existingFromUsername.meta.itemCount > 0) {
+		if (existingFromUsername.length > 0) {
 			throw new UnprocessableEntityException("Username already in use");
 		}
 
-		const user = await this.usersRepository.create({
+		const user = await this.userRepository.create({
 			...data,
-			status: Status.Active,
+			status: "active",
 			theme: "light",
 			password: await hash(data.password, 10),
 		});
@@ -30,19 +28,15 @@ export class UserService {
 		return user;
 	}
 
-	async getUserById(id: string): Promise<User> {
-		return this.usersRepository.getUserById(id);
-	}
-
-	async getUsers(filter: UserFilter, pageOptionsDto: PageOptions): Promise<Page<User>> {
-		return this.usersRepository.getUsers(filter, pageOptionsDto);
+	async getUsers(filter: UserFilter): Promise<User[]> {
+		return this.userRepository.getUsers(filter);
 	}
 
 	async updateUser(user: User) {
-		await this.usersRepository.update(user);
+		await this.userRepository.update(user);
 	}
 
 	async removeUser(id: string) {
-		await this.usersRepository.deleteUser({ id });
+		await this.userRepository.deleteUser({ id });
 	}
 }

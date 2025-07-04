@@ -25,7 +25,7 @@ import { UserModule } from "./domain/user/user.module";
 				},
 			},
 			defaults: {
-				from: "\"Suporte\" <suporte@baseapi.app.br>",
+				from: "\"Suporte\" <suporte@sistemabussola.com.br>",
 			},
 			template: {
 				dir: join(__dirname, "../templates/mail"),
@@ -36,15 +36,16 @@ import { UserModule } from "./domain/user/user.module";
 			},
 		}),
 		TypeOrmModule.forRoot({
-			type: "mariadb",
+			type: "mysql",
 			host: process.env.DB_HOST,
 			port: Number(process.env.DB_PORT),
 			username: process.env.DB_USER,
 			password: process.env.DB_PASSWORD,
 			database: process.env.DB_DATABASE,
 			autoLoadEntities: true,
-			synchronize: false,
+			synchronize: true,
 			logging: Boolean(process.env.TYPEORM_DEBUG),
+			ssl: false,
 		}),
 		UserModule,
 	],

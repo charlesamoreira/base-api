@@ -1,7 +1,7 @@
 import { Test, TestingModule } from "@nestjs/testing";
 import { expect } from "chai";
 import { UserService } from "../../../../src/domain/user/service/user.service";
-import { UserMock } from "../../../mock/user";
+import { UserMock } from "../../../mocks/fakes/user";
 
 describe("UsersService", () => {
 	let service: UserService;
@@ -12,9 +12,9 @@ describe("UsersService", () => {
 			providers: [
 				UserService,
 				{
-					provide: "UsersRepository",
+					provide: "UserRepository",
 					useValue: {
-						findByUsername: () => [UserMock],
+						getUsers: () => [UserMock],
 					},
 				},
 			],
@@ -28,7 +28,7 @@ describe("UsersService", () => {
 	});
 
 	it("should findOne", async () => {
-		const user = await service.findByUsername("test@test.com");
-		expect(user.id).to.equal("123");
+		const user = await service.getUsers({ username: "teste@123.com" });
+		expect(user[0].id).to.equal("123");
 	});
 });

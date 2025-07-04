@@ -5,7 +5,7 @@ export class RefreshTokenEntity {
 	@PrimaryGeneratedColumn("uuid")
 		id: string;
 
-	@Column()
+	@Column({type: "boolean"})
 	public isRevoked: boolean;
 
 	@CreateDateColumn({ type: "timestamp" })

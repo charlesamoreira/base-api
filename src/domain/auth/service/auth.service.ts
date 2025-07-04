@@ -12,16 +12,16 @@ const expiresIn = 60 * 60 * 24 * 30;
 @Injectable()
 export class AuthService {
 	constructor(
-		private tokenService: TokenService,
+		private readonly tokenService: TokenService,
 		private readonly mailService: MailerService,
-		private usersService: UserService,
+		private readonly userService: UserService,
 		@Inject("ResetTokenRepository")
 		private readonly resetTokenRepository: IResetTokenRepository,
 	) {}
 
 	async login(data: AuthRequestDto) {
-		const user = await this.usersService.getUsers({ username: data.username }, { take: 1, skip: 0 });
-		if (user.meta.itemCount === 1 && (await compare(data.password, user[0].password))) {
+		const user = await this.userService.getUsers({ username: data.username });
+		if (user.length === 1 && (await compare(data.password, user[0].password))) {
 			delete user[0].password;
 			const token = await this.tokenService.generateAccessToken(user[0]);
 			const refresh = await this.tokenService.generateRefreshToken(user[0], expiresIn);
@@ -36,14 +36,14 @@ export class AuthService {
 	}
 
 	async register(data: User) {
-		const user = await this.usersService.create(data);
+		const user = await this.userService.create(data);
 		delete user.password;
 
 		const token = await this.tokenService.generateAccessToken(user);
 		const refresh = await this.tokenService.generateRefreshToken(user, expiresIn);
 
 		if (process.env.MAILER_ADMIN) {
-			this.mailService.sendMail({
+			await this.mailService.sendMail({
 				to: process.env.MAILER_ADMIN,
 				subject: "New user registred",
 				template: "./support",
@@ -72,8 +72,8 @@ export class AuthService {
 	}
 
 	async requestReset(data: User) {
-		const users = await this.usersService.getUsers(data,{take: 1, skip: 0});
-		if (users.meta.itemCount !== 1) {
+		const users = await this.userService.getUsers(data);
+		if (users.length !== 1) {
 			throw new UnauthorizedException("The login is invalid");
 		}
 
@@ -82,7 +82,7 @@ export class AuthService {
 		const expiration = new Date();
 		expiration.setTime(expiration.getTime() + expiresIn);
 
-		const resetToken = await this.resetTokenRepository.createResetToken({ expires: expiration, token: await hash(token, 10), userId: users[0].id });
+		const resetToken = await this.resetTokenRepository.createResetToken({ expires: expiration, token: await hash(token,10), userId: users[0].id });
 
 		await this.mailService.sendMail({
 			to: users[0].username,
@@ -97,29 +97,33 @@ export class AuthService {
 	}
 
 	async reset(data: any) {
+
 		const resetToken = await this.resetTokenRepository.findTokenById(data.id);
 
-		if (resetToken.expires < new Date()) {
+		if(resetToken.expires < new Date()) {
 			throw new UnauthorizedException("Invalid or expired password reset token");
 		}
-
+		console.log(data);
+		console.log(resetToken);
 		const isValid = await compare(data.token, resetToken.token);
 		if (!isValid) {
 			throw new UnauthorizedException("Invalid or expired password reset token");
 		}
 
-		const user = await this.usersService.getUserById(resetToken.userId);
-
+		const user = new User();
+		user.id = resetToken.userId;
 		user.password = await hash(data.password, 10);
-		await this.usersService.updateUser(user);
+		await this.userService.updateUser(user);
 
-		this.mailService.sendMail({
-			to: user.username,
+		const users = await this.userService.getUsers({id: resetToken.userId});
+
+		await this.mailService.sendMail({
+			to: users[0].username,
 			subject: "MilhasWallet - Senha alterada com sucesso",
 			template: "./resetPasswordSuccessfuly",
 			context: {
 				id: resetToken.id,
-				name: user.name,
+				name: users[0].name,
 			},
 		});
 	}

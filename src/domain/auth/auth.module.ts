@@ -17,10 +17,7 @@ import { ResetTokenRepository } from "../../adapters/repository/reset-token.repo
 	imports: [
 		JwtModule.registerAsync({
 			useFactory: (configService: ConfigService) => {
-				return {
-					secret: configService.get<string>("JWT_SECREAT"),
-					signOptions: { expiresIn: configService.get<string>("JWT_EXPIRES") },
-				};
+				return { secret: configService.get<string>("JWT_SECREAT"), signOptions: { expiresIn: configService.get<string>("JWT_EXPIRES") } };
 			},
 			inject: [ConfigService],
 		}),
@@ -28,19 +25,7 @@ import { ResetTokenRepository } from "../../adapters/repository/reset-token.repo
 		UserModule,
 		TypeOrmModule.forFeature([RefreshTokenEntity, ResetTokenEntity]),
 	],
-	providers: [
-		AuthService,
-		TokenService,
-		JwtStrategy,
-		{
-			provide: "RefreshTokenRepository",
-			useClass: RefreshTokenRepository,
-		},
-		{
-			provide: "ResetTokenRepository",
-			useClass: ResetTokenRepository,
-		},
-	],
+	providers: [AuthService, TokenService, JwtStrategy, { provide: "RefreshTokenRepository", useClass: RefreshTokenRepository }, { provide: "ResetTokenRepository", useClass: ResetTokenRepository }],
 	exports: [AuthService],
 	controllers: [AuthController],
 })
