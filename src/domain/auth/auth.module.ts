@@ -17,7 +17,7 @@ import { ResetTokenRepository } from "../../adapters/repository/reset-token.repo
 	imports: [
 		JwtModule.registerAsync({
 			useFactory: (configService: ConfigService) => {
-				return { secret: configService.get<string>("JWT_SECREAT"), signOptions: { expiresIn: configService.get<string>("JWT_EXPIRES") } };
+				return { secret: configService.get<string>("JWT_SECREAT") };
 			},
 			inject: [ConfigService],
 		}),
